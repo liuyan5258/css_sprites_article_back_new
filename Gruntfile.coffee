@@ -44,9 +44,9 @@ module.exports = (grunt)->
 
     connect: {
       options: 
-        port: 6600
+        port: 9000
         # Change this to '0.0.0.0' to access the server from outside.
-        hostname: 'localhost'
+        hostname: '0.0.0.0'
         livereload: 35729
       livereload:
         options: 
@@ -127,7 +127,7 @@ module.exports = (grunt)->
         src: '<%=ntes.app%>/*.html'
         dest: '<%=ntes.dist%>/'
         options:
-          prefix: 'http://f2e.developer.163.com/<%= ntes.developer %>/3g/'
+          prefix: 'http://f2e.developer.163.com/<%= ntes.developer %>/article-share/'
           scripts:
             article_back_new:
               main: 'dist/scripts/article_back_new.js'
@@ -138,7 +138,7 @@ module.exports = (grunt)->
         src: '<%=ntes.app%>/*.html'
         dest: '<%=ntes.dist%>/<%= ntes.version %>/html'
         options:
-          prefix: 'http://img1.cache.netease.com/utf8/3g/touch/<%= ntes.version %>/holder/'
+          prefix: 'http://img1.cache.netease.com/utf8/3g/article-share/<%= ntes.version %>/holder/'
           # relative: false
           scripts:
             article_back_new:
@@ -183,7 +183,7 @@ module.exports = (grunt)->
           cwd: '<%= ntes.app %>'
           dest: '<%= ntes.dist %>/'
           src: [
-            'images/{,*/}*.*', 'scripts/{,*/}*.js'
+            'images/{,*/}*.*', '!images/icons/*.*', 'scripts/{,*/}*.js'
           ]
         }]
       }
@@ -207,7 +207,7 @@ module.exports = (grunt)->
           cwd: '<%= ntes.app %>'
           dest: '<%= ntes.dist %>/<%= ntes.version %>'
           src: [
-            'images/{,*/}*.*'
+            'images/{,*/}*.*','!images/icons/*.*'
           ]
         }]
       }
@@ -238,7 +238,7 @@ module.exports = (grunt)->
           expand: true,
           cwd:'<%= ntes.dist %>',
           src: ['**/*','!**/*.html'],
-          dest: '/utf8/3g/touch'
+          dest: '/utf8/3g/article-share'
         }]
       }
     }
@@ -284,7 +284,7 @@ module.exports = (grunt)->
 
   grunt.registerTask 'f2e', (target)->
     done = this.async()
-    upload = exec "scp -r -P 16322 dist/* #{appConfig.developer}@223.252.197.245:/home/#{appConfig.developer}/3g/", (error, stdout, stderr)->
+    upload = exec "scp -r -P 16322 dist/* #{appConfig.developer}@223.252.197.245:/home/#{appConfig.developer}/article-share/", (error, stdout, stderr)->
       console.log('stdout: ' + stdout)
       console.log('stderr: ' + stderr)
       if error

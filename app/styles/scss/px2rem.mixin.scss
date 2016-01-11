@@ -2,8 +2,8 @@
 $designWidth: 640;
 
 // 这里是雪碧图的实际大小，等雪碧图生成后需要手动补上
-$bigWidth: 40px;
-$bigHeight: 164px;
+$bigWidth: 66px;
+$bigHeight: 313px;
 
 @function px2rem ($px) {
   @if (type-of($px) == "number") {
@@ -11,23 +11,30 @@ $bigHeight: 164px;
   }
   
   @if (type-of($px) == "list") {
-      @if (nth($px, 1) == 0 and nth($px, 2) != 0) {
-        @return 0 nth($px, 2) / 100px * 1rem;
-      } @else if (nth($px, 1) == 0 and nth($px, 2) == 0)  {
-        @return 0 0;
-      } @else if (nth($px, 1) != 0 and nth($px, 2) == 0) {
-        @return nth($px, 1) / 100px * 1rem 0;
-      } @else {
-        @return nth($px, 1) / 100px * 1rem nth($px, 2) / 100px * 1rem;
-      }
+    @if (nth($px, 1) == 0 and nth($px, 2) != 0) {
+      @return 0 ( nth($px, 2) / 100px - 0.01 ) * 1rem;
+    } @else if (nth($px, 1) == 0 and nth($px, 2) == 0)  {
+      @return 0 0;
+    } @else if (nth($px, 1) != 0 and nth($px, 2) == 0) {
+      @return ( nth($px, 1) / 100px - 0.01 ) * 1rem 0;
+    } @else {
+      @return ( nth($px, 1) / 100px - 0.01 ) * 1rem ( nth($px, 2) / 100px - 0.01 ) * 1rem;
+    }
   }
 }
 
 @mixin sprite-info ($icons, $name) {
   width: px2rem(image-width(sprite-file($icons, $name)));
   height: px2rem(image-height(sprite-file($icons, $name)));
-  -webkit-mask-image: sprite-url($icons);
-  -webkit-mask-position: px2rem(sprite-position($icons, $name));
-  -webkit-mask-size: px2rem(($bigWidth, $bigHeight));
-  -webkit-mask-repeat: no-repeat;
+   @if (str-index($name, mask) == null) {
+    background-image: sprite-url($icons);
+    background-position: px2rem(sprite-position($icons, $name));
+    background-size: px2rem(($bigWidth, $bigHeight));
+    background-repeat: no-repeat;
+  } @else {
+    -webkit-mask-image: sprite-url($icons);
+    -webkit-mask-position: px2rem(sprite-position($icons, $name));
+    -webkit-mask-size: px2rem(($bigWidth, $bigHeight));
+    -webkit-mask-repeat: no-repeat;
+  }
 }

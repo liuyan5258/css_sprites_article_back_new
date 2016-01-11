@@ -3,31 +3,7 @@
 ### 保留之前的布局适配方案  
 
     <script>
-      (function (doc, win) {
-        var docEl = doc.documentElement,
-          isIOS = navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/),
-          dpr = isIOS? Math.min(win.devicePixelRatio, 3) : 1,
-          dpr = window.top === window.self? dpr : 1, //被iframe引用时，禁止缩放
-          scale = 1 / dpr,
-          resizeEvt = 'orientationchange' in window ? 'orientationchange' : 'resize';
-        docEl.dataset.dpr = dpr;
-        var metaEl = doc.createElement('meta');
-        metaEl.name = 'viewport';
-        metaEl.content = 'initial-scale=' + scale + ',maximum-scale=' + scale + ', minimum-scale=' + scale;
-        docEl.firstElementChild.appendChild(metaEl);
-        var recalc = function () {
-            var width = docEl.clientWidth;
-            if (width / dpr > 640) {
-                width = 640 * dpr;
-            }
-            docEl.dataset.width = width
-            docEl.dataset.percent = 100 * (width / 640);
-            docEl.style.fontSize = 100 * (width / 640) + 'px';
-          };
-        recalc()
-        if (!doc.addEventListener) return;
-        win.addEventListener(resizeEvt, recalc, false);
-      })(document, window);
+      (function(h,d){var b=h.documentElement,f=navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/),g=f?Math.min(d.devicePixelRatio,3):1,g=window.top===window.self?g:1,c=1/g,e="orientationchange" in window?"orientationchange":"resize";b.dataset.dpr=g;var i=h.createElement("meta");i.name="viewport";i.content="initial-scale="+c+",maximum-scale="+c+", minimum-scale="+c;b.firstElementChild.appendChild(i);var a=function(){var j=b.clientWidth;if(j/g>640){j=640*g}b.dataset.width=j;b.dataset.percent=100*(j/640);b.style.fontSize=100*(j/640)+"px"};a();if(!h.addEventListener){return}d.addEventListener(e,a,false)})(document,window);
     </script>  
 
 ### 在px2rem中把px转换为rem  
@@ -36,8 +12,8 @@
     $designWidth: 640;
 
     // 这里是雪碧图的实际大小，等雪碧图生成后需要手动补上
-    $bigWidth: 40px;
-    $bigHeight: 164px;
+    $bigWidth: 66px;
+    $bigHeight: 313px;
 
     @function px2rem ($px) {
       @if (type-of($px) == "number") {
@@ -45,23 +21,35 @@
       }
       
       @if (type-of($px) == "list") {
-          @if (nth($px, 1) == 0 and nth($px, 2) != 0) {
-            @return 0 nth($px, 2) / 100px * 1rem;
-          } @else if (nth($px, 1) == 0 and nth($px, 2) == 0)  {
-            @return 0 0;
-          } @else if (nth($px, 1) != 0 and nth($px, 2) == 0) {
-            @return nth($px, 1) / 100px * 1rem 0;
-          } @else {
-            @return nth($px, 1) / 100px * 1rem nth($px, 2) / 100px * 1rem;
-          }
+        @if (nth($px, 1) == 0 and nth($px, 2) != 0) {
+          @return 0 ( nth($px, 2) / 100px - 0.01 ) * 1rem;
+        } @else if (nth($px, 1) == 0 and nth($px, 2) == 0)  {
+          @return 0 0;
+        } @else if (nth($px, 1) != 0 and nth($px, 2) == 0) {
+          @return ( nth($px, 1) / 100px - 0.01 ) * 1rem 0;
+        } @else {
+          @return ( nth($px, 1) / 100px - 0.01 ) * 1rem ( nth($px, 2) / 100px - 0.01 ) * 1rem;
+        }
       }
     }
 
     @mixin sprite-info ($icons, $name) {
       width: px2rem(image-width(sprite-file($icons, $name)));
       height: px2rem(image-height(sprite-file($icons, $name)));
-      -webkit-mask-image: sprite-url($icons);
-      -webkit-mask-position: px2rem(sprite-position($icons, $name));
-      -webkit-mask-size: px2rem(($bigWidth, $bigHeight));
-      -webkit-mask-repeat: no-repeat;
+       @if (str-index($name, mask) == null) {
+        background-image: sprite-url($icons);
+        background-position: px2rem(sprite-position($icons, $name));
+        background-size: px2rem(($bigWidth, $bigHeight));
+        background-repeat: no-repeat;
+      } @else {
+        -webkit-mask-image: sprite-url($icons);
+        -webkit-mask-position: px2rem(sprite-position($icons, $name));
+        -webkit-mask-size: px2rem(($bigWidth, $bigHeight));
+        -webkit-mask-repeat: no-repeat;
+      }
     }  
+
+### fix  
+
+1. 因为之前文章页底部的那些图标都是用mask的，所以做了个判断
+2. 在dist下过滤掉icons文件夹，只生成合成的那张雪碧图
